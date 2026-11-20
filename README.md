@@ -2,6 +2,8 @@
 
 **TaLens - Talent Lens, A Feature Attribution based Job Rejection Calculator** is an explainable screening diagnostics web application styled with an early-2010s enterprise SaaS UI/UX aesthetic. It evaluates candidate resumes and structured metadata signals against target job descriptions (JDs) to explain why an application is likely to be rejected or shortlisted, and lets users simulate actionable counterfactual improvements in real time.
 
+Access it here: https://komalsratmakuri.github.io/talens/
+
 ## Author
 
 * **Komal Sai Raj Atmakuri** ([@komalsratmakuri](https://github.com/komalsratmakuri))
