@@ -14,25 +14,10 @@
 * **Resume vs. JD Gap Matrix & Annotated Diff View**: Inspect matched, partial, and missing requirements in a structured matrix or view side-by-side highlighted tokens.
 * **Model Weight Calibration**: Adjust global importance multipliers for core stack coverage, notice period sensitivity, quantified impact metrics, and domain pedigree.
 
-## Suggested Repository Structure
+## Repository Structure
 
 ```text
 talens/
 ├── index.html
 └── README.md
 ```
-
-## Pushing to GitHub
-
-Run the following commands inside your local project folder to initialize and push to `https://github.com/komalsratmakuri/talens`:
-
-```bash
-git init
-git add index.html README.md
-git commit -m "feat: initial release of TaLens job rejection calculator"
-git branch -M main
-git remote add origin https://github.com/komalsratmakuri/talens.git
-git push -u origin main
-```
-
-To enable **GitHub Pages** for a live browser demo, open your repository on GitHub and go to **Settings > Pages**, set **Source** to **Deploy from a branch**, select the `main` branch and `/ (root)` folder, and save.
