@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaLens - Talent Lens, A Feature Attribution based Job Rejection Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ==========================================================================
+       2010s ENTERPRISE SAAS / WEB 2.0 TRANSITIONAL DESIGN SYSTEM
+       Inspired by LinkedIn Talent Solutions 2013, Apple Mavericks & Early Stripe
+       ========================================================================== */
+    :root {
+      --bg-canvas: #e9edf2;
+      --bg-panel: #ffffff;
+      --bg-subpanel: #f6f8fa;
+      --border-crisp: #c5ced8;
+      --border-light: #dce2e9;
+      --slate-top: #34495e;
+      --slate-bottom: #1e2b37;
+      --steel-blue: #2980b9;
+      --steel-dark: #1f6391;
+      --text-primary: #222b35;
+      --text-secondary: #52606d;
+      --text-muted: #7b8794;
+      --pos-green: #27ae60;
+      --pos-green-dark: #1e8449;
+      --neg-red: #c0392b;
+      --neg-red-dark: #962d22;
+      --warn-amber: #d68910;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, sans-serif;
+      background-color: var(--bg-canvas);
+      background-image: radial-gradient(#d5dce4 1px, transparent 1px);
+      background-size: 16px 16px;
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Brushed-Slate Enterprise Navigation Bar */
+    .enterprise-navbar {
+      background: linear-gradient(180deg, #3b5066 0%, #263544 52%, #1d2935 100%);
+      border-bottom: 1px solid #111921;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    .brand-emblem {
+      background: linear-gradient(180deg, #5dade2 0%, #2980b9 50%, #1b4f72 100%);
+      border: 1px solid #154360;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Tactile Navigation Tabs */
+    .nav-tab {
+      color: #cbd5e1;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.65);
+      border-left: 1px solid rgba(255, 255, 255, 0.06);
+      border-right: 1px solid rgba(0, 0, 0, 0.35);
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .nav-tab:hover {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 100%);
+      color: #ffffff;
+    }
+
+    .nav-tab.active {
+      background: linear-gradient(180deg, #18222c 0%, #22303e 100%);
+      color: #ffffff;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 -2px 0 #3498db;
+    }
+
+    /* Sub-header Toolbar */
+    .sub-toolbar {
+      background: linear-gradient(180deg, #fbfcfd 0%, #e5ebf1 100%);
+      border-bottom: 1px solid #bec8d2;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Classic 2010s SaaS Card Container */
+    .saas-panel {
+      background: #ffffff;
+      border: 1px solid var(--border-crisp);
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08), inset 0 1px 0 #ffffff;
+    }
+
+    .saas-panel-header {
+      background: linear-gradient(180deg, #f8fafc 0%, #ebf0f5 100%);
+      border-bottom: 1px solid var(--border-crisp);
+      border-radius: 4px 4px 0 0;
+      padding: 9px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-shadow: 0 1px 0 #ffffff;
+    }
+
+    .saas-panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #2c3e50;
+      letter-spacing: -0.01em;
+    }
+
+    /* Tactile 2010s Buttons */
+    .btn-glossy-primary {
+      background: linear-gradient(180deg, #4aa3df 0%, #2980b9 50%, #216a9a 100%);
+      border: 1px solid #1a5276;
+      border-radius: 4px;
+      color: #ffffff;
+      font-weight: 700;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.45);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 1px 2px rgba(0, 0, 0, 0.18);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .btn-glossy-primary:hover {
+      background: linear-gradient(180deg, #5dade2 0%, #2e8ece 50%, #2471a3 100%);
+    }
+
+    .btn-glossy-primary:active {
+      background: linear-gradient(180deg, #1f6391 0%, #2980b9 100%);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+      transform: translateY(1px);
+    }
+
+    .btn-silver {
+      background: linear-gradient(180deg, #ffffff 0%, #eef2f6 52%, #dfe5ec 100%);
+      border: 1px solid #b4bec9;
+      border-radius: 4px;
+      color: #334155;
+      font-weight: 600;
+      text-shadow: 0 1px 0 #ffffff;
+      box-shadow: inset 0 1px 0 #ffffff, 0 1px 1px rgba(0, 0, 0, 0.06);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .btn-silver:hover {
+      background: linear-gradient(180deg, #ffffff 0%, #f4f7fa 52%, #e4eaf0 100%);
+      border-color: #9aa6b4;
+    }
+
+    .btn-silver:active,
+    .btn-silver.selected {
+      background: linear-gradient(180deg, #d7dfe7 0%, #e7ecf1 100%);
+      border-color: #8b98a7;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+      color: #1e293b;
+    }
+
+    /* Segmented Pill Toggle */
+    .segmented-group {
+      display: inline-flex;
+      border: 1px solid #b0bac5;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 1px 0 #ffffff;
+    }
+
+    .segmented-btn {
+      background: linear-gradient(180deg, #ffffff 0%, #e8edf2 100%);
+      border-right: 1px solid #b0bac5;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #475569;
+      text-shadow: 0 1px 0 #ffffff;
+      cursor: pointer;
+    }
+
+    .segmented-btn:last-child {
+      border-right: none;
+    }
+
+    .segmented-btn.active {
+      background: linear-gradient(180deg, #2c3e50 0%, #3d566e 100%);
+      color: #ffffff;
+      text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Classic Form Inputs with Subtle Inner Shadows */
+    .classic-input,
+    .classic-textarea,
+    .classic-select {
+      background-color: #fcfdfe;
+      border: 1px solid #b8c2cc;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.09);
+      color: #1e293b;
+      font-family: inherit;
+      font-size: 12.5px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .classic-input:focus,
+    .classic-textarea:focus,
+    .classic-select:focus {
+      outline: none;
+      border-color: #3498db;
+      background-color: #ffffff;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06), 0 0 0 2px rgba(52, 152, 219, 0.22);
+    }
+
+    /* Attribute Toggle Chips */
+    .attr-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 3px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid #bcc6d1;
+      background: linear-gradient(180deg, #ffffff 0%, #edf1f5 100%);
+      color: #475569;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .attr-chip.active-pos {
+      background: linear-gradient(180deg, #eafaf1 0%, #d4efdf 100%);
+      border-color: #52be80;
+      color: #196f3d;
+      box-shadow: inset 0 1px 0 #ffffff;
+    }
+
+    .attr-chip.active-neg {
+      background: linear-gradient(180deg, #fdedec 0%, #fadbd8 100%);
+      border-color: #ec7063;
+      color: #922b21;
+      box-shadow: inset 0 1px 0 #ffffff;
+    }
+
+    /* Segmented Progress Meter (2010s Candy/Beveled Bar) */
+    .meter-track {
+      height: 22px;
+      background: linear-gradient(180deg, #dce2e8 0%, #eef2f6 100%);
+      border: 1px solid #aeb9c4;
+      border-radius: 4px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.18);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .meter-fill-red {
+      background: linear-gradient(180deg, #e74c3c 0%, #c0392b 55%, #a93226 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    .meter-fill-amber {
+      background: linear-gradient(180deg, #f39c12 0%, #d68910 55%, #b9770e 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    .meter-fill-green {
+      background: linear-gradient(180deg, #2ecc71 0%, #27ae60 55%, #1e8449 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+
+    /* SHAP Waterfall Row Styling */
+    .shap-row {
+      border-bottom: 1px solid #eaedf1;
+      transition: background-color 0.12s ease;
+      cursor: pointer;
+    }
+
+    .shap-row:hover {
+      background-color: #f2f6fa;
+    }
+
+    .shap-row.selected-row {
+      background-color: #e8f2fc;
+      box-shadow: inset 3px 0 0 #2980b9;
+    }
+
+    .shap-bar-pos {
+      background: linear-gradient(180deg, #2ecc71 0%, #27ae60 55%, #219150 100%);
+      border: 1px solid #1e8449;
+      border-radius: 0 3px 3px 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .shap-bar-neg {
+      background: linear-gradient(180deg, #e74c3c 0%, #c0392b 55%, #a93226 100%);
+      border: 1px solid #922b21;
+      border-radius: 3px 0 0 3px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Status Badges (2010s Crisp Pill/Tag Style) */
+    .badge-2010 {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 10.5px;
+      font-weight: 700;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+    }
+
+    .badge-matched {
+      background: linear-gradient(180deg, #e8f8f5 0%, #d1f2eb 100%);
+      border: 1px solid #76d7c4;
+      color: #117864;
+    }
+
+    .badge-partial {
+      background: linear-gradient(180deg, #fef9e7 0%, #fcf3cf 100%);
+      border: 1px solid #f7dc6f;
+      color: #9a7d0a;
+    }
+
+    .badge-missing {
+      background: linear-gradient(180deg, #fdedec 0%, #fadbd8 100%);
+      border: 1px solid #f1948a;
+      color: #922b21;
+    }
+
+    /* Classic Striped Enterprise Table */
+    .enterprise-table th {
+      background: linear-gradient(180deg, #f7f9fb 0%, #e6ecf2 100%);
+      border-bottom: 1px solid #c2ccd6;
+      border-right: 1px solid #d8e0e8;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 7px 10px;
+      text-align: left;
+      text-shadow: 0 1px 0 #ffffff;
+    }
+
+    .enterprise-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e5e9ef;
+      border-right: 1px solid #eef2f6;
+      font-size: 12px;
+    }
+
+    .enterprise-table tr:nth-child(even) td {
+      background-color: #f9fbfd;
+    }
+
+    /* Keyword Highlighting in Diff View */
+    .hl-matched {
+      background-color: #d4efdf;
+      border-bottom: 2px solid #27ae60;
+      padding: 0 2px;
+      border-radius: 2px;
+      font-weight: 600;
+      color: #145a32;
+    }
+
+    .hl-negative {
+      background-color: #fadbd8;
+      border-bottom: 2px solid #c0392b;
+      padding: 0 2px;
+      border-radius: 2px;
+      font-weight: 600;
+      color: #78281f;
+    }
+
+    .hl-focus {
+      background-color: #fcf3cf !important;
+      outline: 2px solid #f39c12;
+      box-shadow: 0 0 8px rgba(243, 156, 18, 0.5);
+    }
+
+    /* Multi-step Progress Overlay */
+    .progress-bar-striped {
+      background-color: #2980b9;
+      background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.22) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.22) 50%,
+        rgba(255, 255, 255, 0.22) 75%,
+        transparent 75%,
+        transparent
+      );
+      background-size: 24px 24px;
+      animation: moveStripes 0.8s linear infinite;
+    }
+
+    @keyframes moveStripes {
+      0% { background-position: 0 0; }
+      100% { background-position: 24px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================
+       1. TOP ENTERPRISE NAVIGATION BAR (2010s Brushed Slate Header)
+       ====================================================================== -->
+  <header class="enterprise-navbar sticky top-0 z-40">
+    <div class="max-w-[1380px] mx-auto px-3 sm:px-5 flex flex-col lg:flex-row lg:items-center lg:justify-between">
+      <!-- Brand Identity -->
+      <div class="flex items-start sm:items-center gap-2.5 py-2.5 min-w-0">
+        <div class="brand-emblem w-7 h-7 sm:w-8 sm:h-8 mt-0.5 sm:mt-0 rounded flex items-center justify-center text-white font-bold text-sm shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 leading-snug">
+            <span class="text-white font-bold text-[15px] sm:text-[16px] tracking-tight shrink-0" style="text-shadow: 0 -1px 0 rgba(0,0,0,0.6);">TaLens</span>
+            <span class="text-[#7fb3d5] font-semibold text-xs sm:text-[13px] shrink-0">- Talent Lens,</span>
+            <span class="text-[11px] sm:text-[12px] text-[#cbd5e1] font-medium break-words">A Feature Attribution based Job Rejection Calculator</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tactile Navigation Tabs -->
+      <nav class="flex items-stretch border-t border-white/10 lg:border-t-0 overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0" id="mainNavTabs">
+        <button data-tab="analyzer" class="nav-tab active px-3 sm:px-3.5 py-2.5 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0">
+          <svg class="w-3.5 h-3.5 text-[#5dade2]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+          Rejection Analyzer
+        </button>
+        <button data-tab="diff" class="nav-tab px-3 sm:px-3.5 py-2.5 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0">
+          <svg class="w-3.5 h-3.5 text-[#82e0aa]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Resume vs. JD Diff
+        </button>
+        <button data-tab="weights" class="nav-tab px-3 sm:px-3.5 py-2.5 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0">
+          <svg class="w-3.5 h-3.5 text-[#f7dc6f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+          Feature Weights &amp; SHAP Model
+        </button>
+        <button data-tab="samples" class="nav-tab px-3 sm:px-3.5 py-2.5 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap shrink-0">
+          <svg class="w-3.5 h-3.5 text-[#d7bde2]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          Sample Profiles
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ======================================================================
+       SUB-HEADER PRESET SCENARIO TOOLBAR
+       ====================================================================== -->
+  <div class="sub-toolbar">
+    <div class="max-w-[1380px] mx-auto px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-[#52606d] flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 text-[#2980b9]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+          Quick-Load Preset Case:
+        </span>
+        <div class="flex flex-wrap gap-1.5" id="presetBar">
+          <button onclick="loadPreset('backend')" id="preset-backend" class="btn-silver selected px-2.5 py-1 text-[11.5px] flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#c0392b]"></span>
+            Senior Backend Engineer (Rejected - ATS Filter)
+          </button>
+          <button onclick="loadPreset('pm')" id="preset-pm" class="btn-silver px-2.5 py-1 text-[11.5px] flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#c0392b]"></span>
+            Product Manager (Rejected - Domain Gap)
+          </button>
+          <button onclick="loadPreset('frontend')" id="preset-frontend" class="btn-silver px-2.5 py-1 text-[11.5px] flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-[#d68910]"></span>
+            Frontend Developer (Borderline - Skills Match)
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 text-[11px] text-[#52606d]">
+        <span>Baseline Prior <code class="bg-white border border-[#cbd5e1] px-1.5 py-0.5 rounded font-mono text-[#1e293b]">E[f(x)] = 0.50</code></span>
+        <span>|</span>
+        <span>Pass Cutoff <code class="bg-white border border-[#cbd5e1] px-1.5 py-0.5 rounded font-mono text-[#1e293b]">0.65 (65%)</code></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MAIN WORKSPACE CONTAINER
+       ====================================================================== -->
+  <main class="max-w-[1380px] mx-auto px-3 sm:px-5 py-4">
+
+    <!-- ====================================================================
+         VIEW 1: REJECTION ANALYZER (PRIMARY WORKSPACE)
+         ==================================================================== -->
+    <section id="tab-analyzer" class="space-y-4">
+
+      <!-- TOP SPLIT-PANE: INPUT & SIMULATION WORKSPACE -->
+      <div class="saas-panel">
+        <div class="saas-panel-header flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-sm bg-[#2980b9] inline-block shadow-sm"></span>
+            <h2 class="saas-panel-title">1. Candidate Profile &amp; Target Job Specification</h2>
+            <span class="text-[11px] text-[#64748b] hidden md:inline">— Edit resume text, toggle metadata signals, or paste any custom JD</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearInputs()" class="btn-silver px-2.5 py-1 text-[11px]">Clear Fields</button>
+            <button onclick="runAttributionAnalysis()" id="runBtn" class="btn-glossy-primary px-4 py-1.5 text-xs flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Run Attribution Analysis
+            </button>
+          </div>
+        </div>
+
+        <!-- Multi-Step Analysis Progress Bar (Hidden until triggered) -->
+        <div id="analysisProgressWrap" class="hidden bg-[#f0f4f8] border-b border-[#c5ced8] px-4 py-2.5">
+          <div class="flex items-center justify-between text-[11.5px] font-bold text-[#2c3e50] mb-1">
+            <span id="analysisStepLabel">Tokenizing Resume &amp; JD...</span>
+            <span id="analysisPercentLabel">25%</span>
+          </div>
+          <div class="w-full h-3 bg-[#dce3ea] border border-[#b0bcc8] rounded overflow-hidden shadow-inner">
+            <div id="analysisProgressBar" class="progress-bar-striped h-full transition-all duration-200" style="width: 25%;"></div>
+          </div>
+        </div>
+
+        <!-- Split-Pane Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#dce2e9]">
+
+          <!-- LEFT PANE: CANDIDATE RESUME & METADATA CHIPS -->
+          <div class="p-3.5 space-y-3 bg-[#fcfdfe]">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label for="resumeInput" class="text-xs font-bold text-[#2c3e50] uppercase tracking-wide flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#2980b9]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Candidate Resume / Profile Summary
+              </label>
+              <span id="resumeWordCount" class="text-[11px] text-[#7b8794] font-mono">0 words</span>
+            </div>
+
+            <textarea id="resumeInput" rows="7" class="classic-textarea w-full p-2.5 leading-relaxed" placeholder="Paste candidate resume summary, experience bullets, tech stack, and metrics..."></textarea>
+
+            <!-- Structured Quick-Toggle Signals -->
+            <div class="bg-[#f3f6f9] border border-[#d6dfe8] rounded p-2.5 space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[11px] font-bold text-[#475569] uppercase tracking-wider">Structured ATS Metadata Signals:</span>
+                <div class="flex items-center gap-2">
+                  <label class="text-[11px] font-semibold text-[#475569]">Experience:</label>
+                  <select id="expYearsSelect" class="classic-select px-2 py-0.5 text-[11.5px] font-semibold">
+                    <option value="1">1 Year (Junior)</option>
+                    <option value="3">3 Years (Mid-Level)</option>
+                    <option value="5" selected>5 Years (Senior)</option>
+                    <option value="8">8+ Years (Staff/Lead)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Notice Period Segmented Control -->
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[11.5px] font-semibold text-[#334155]">Notice Period / Availability:</span>
+                <div class="segmented-group" id="noticePeriodGroup">
+                  <button type="button" data-notice="immediate" class="segmented-btn">Immediate</button>
+                  <button type="button" data-notice="30" class="segmented-btn">30 Days</button>
+                  <button type="button" data-notice="60" class="segmented-btn">60 Days</button>
+                  <button type="button" data-notice="90" class="segmented-btn active">90 Days</button>
+                </div>
+              </div>
+
+              <!-- Quick-Toggle Attribute Chips -->
+              <div class="flex flex-wrap gap-1.5 pt-0.5" id="candidateChips">
+                <button type="button" data-chip="tier1" class="attr-chip active-pos" onclick="toggleChip(this)">
+                  <span>✓</span> Tier-1 / Product Pedigree
+                </button>
+                <button type="button" data-chip="quantified" class="attr-chip" onclick="toggleChip(this)">
+                  <span>+</span> Quantified Impact Metrics
+                </button>
+                <button type="button" data-chip="sysdesign" class="attr-chip" onclick="toggleChip(this)">
+                  <span>+</span> Distributed System Design
+                </button>
+                <button type="button" data-chip="oss" class="attr-chip" onclick="toggleChip(this)">
+                  <span>+</span> Leadership / Mentorship
+                </button>
+                <button type="button" data-chip="jobhop" class="attr-chip" onclick="toggleChip(this)">
+                  <span>!</span> Frequent Job Switches (&lt;1 yr)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT PANE: TARGET JOB DESCRIPTION (JD) -->
+          <div class="p-3.5 space-y-3 bg-[#fcfdfe]">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label for="jdInput" class="text-xs font-bold text-[#2c3e50] uppercase tracking-wide flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#27ae60]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                Target Job Description (JD)
+              </label>
+              <span id="jdWordCount" class="text-[11px] text-[#7b8794] font-mono">0 words</span>
+            </div>
+
+            <textarea id="jdInput" rows="7" class="classic-textarea w-full p-2.5 leading-relaxed" placeholder="Paste target job description, required skills, domain requirements, and seniority expectations..."></textarea>
+
+            <!-- Role Level & Industry Domain Controls -->
+            <div class="bg-[#f3f6f9] border border-[#d6dfe8] rounded p-2.5 space-y-2.5">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-bold text-[#475569] uppercase mb-1">Target Role Level</label>
+                  <select id="roleLevelSelect" class="classic-select w-full px-2.5 py-1 text-xs font-semibold">
+                    <option value="junior">Junior / Associate (0–2 yrs)</option>
+                    <option value="mid">Mid-Level Engineer / Specialist (2–4 yrs)</option>
+                    <option value="senior" selected>Senior / Lead (5+ yrs)</option>
+                    <option value="staff">Staff / Principal / Group PM (8+ yrs)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-[#475569] uppercase mb-1">Industry Domain</label>
+                  <select id="industrySelect" class="classic-select w-full px-2.5 py-1 text-xs font-semibold">
+                    <option value="cloud" selected>Cloud Infrastructure &amp; Distributed SaaS</option>
+                    <option value="fintech">FinTech / High-Frequency Payments</option>
+                    <option value="consumer">Consumer Web &amp; Growth Product</option>
+                    <option value="ai">Applied ML / Data Engineering</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5 text-[11.5px] text-[#475569]">
+                <div class="flex items-center gap-1.5">
+                  <input type="checkbox" id="strictNoticeToggle" checked class="rounded border-[#94a3b8]" />
+                  <label for="strictNoticeToggle" class="font-semibold cursor-pointer">Enforce Urgent Hiring Penalty (&gt;30d Notice)</label>
+                </div>
+                <span class="text-[11px] text-[#64748b] italic">SHAP Kernel Explainer Ready</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           2. OVERALL MATCH & REJECTION RISK SCORECARD + METER
+           ================================================================== -->
+      <div class="saas-panel">
+        <div class="saas-panel-header flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-sm bg-[#27ae60] inline-block shadow-sm"></span>
+            <h2 class="saas-panel-title">2. Executive Screening Verdict &amp; Pass Probability Gauge</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="simulationActivePill" class="hidden px-2 py-0.5 text-[11px] font-bold rounded bg-[#fef9e7] border border-[#f7dc6f] text-[#9a7d0a]">
+              ⚡ What-If Counterfactual Active
+            </span>
+            <span id="verdictBadge" class="badge-2010 badge-missing">HIGH REJECTION RISK</span>
+          </div>
+        </div>
+
+        <div class="p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+          <!-- Score Readout Box -->
+          <div class="lg:col-span-3 bg-[#f7f9fc] border border-[#d5dee7] rounded p-3 text-center shadow-inner">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-[#64748b]">Predicted Shortlist Probability</div>
+            <div class="flex items-baseline justify-center gap-1.5 my-1">
+              <span id="scorePercentDisplay" class="text-3xl font-extrabold tracking-tight text-[#c0392b]">34%</span>
+              <span id="scoreDeltaBadge" class="hidden text-xs font-bold px-1.5 py-0.5 rounded bg-[#eafaf1] text-[#1e8449] border border-[#a9dfbf]">+0%</span>
+            </div>
+            <div class="text-[11px] text-[#52606d]">
+              Shortlist Cutoff: <strong class="text-[#1e293b]">65%</strong> &bull; Base Prior: <strong class="text-[#1e293b]">50%</strong>
+            </div>
+          </div>
+
+          <!-- Horizontal Segmented Progress Meter -->
+          <div class="lg:col-span-9 space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold">
+              <span id="verdictHeadline" class="text-[#922b21]">Decision: Auto-Rejected at Recruiter / ATS Triage (-31% below shortlist threshold)</span>
+              <span id="netShapSumText" class="font-mono text-[11.5px] text-[#475569]">Net SHAP Shift: -0.16</span>
+            </div>
+
+            <!-- 2010s Beveled Meter with 65% Threshold Marker -->
+            <div class="relative pt-1 pb-2">
+              <div class="meter-track w-full">
+                <div id="probabilityMeterFill" class="meter-fill-red h-full transition-all duration-300" style="width: 34%;"></div>
+                <!-- Subtle vertical segment ticks -->
+                <div class="absolute inset-0 grid grid-cols-10 pointer-events-none">
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div class="border-r border-black/10"></div>
+                  <div></div>
+                </div>
+              </div>
+
+              <!-- 65% Shortlist Threshold Pin -->
+              <div class="absolute top-0 bottom-0 flex flex-col items-center pointer-events-none" style="left: 65%;">
+                <div class="w-0.5 h-7 bg-[#1e293b] shadow"></div>
+                <span class="mt-0.5 px-1.5 py-0.2 bg-[#1e293b] text-white text-[10px] font-bold rounded shadow-sm whitespace-nowrap">
+                  Cutoff 65%
+                </span>
+              </div>
+            </div>
+
+            <!-- Quick Primary Driver Summary Strip -->
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11.5px] text-[#475569] pt-1">
+              <span><strong class="text-[#c0392b]">Top Rejection Driver:</strong> <span id="topNegDriverText">—</span></span>
+              <span><strong class="text-[#27ae60]">Top Positive Signal:</strong> <span id="topPosDriverText">—</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           3. MAIN ANALYTICS SPLIT: SHAP WATERFALL + EVIDENCE & COUNTERFACTUALS
+           ================================================================== -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+
+        <!-- LEFT 7 COLS: INTERACTIVE SHAP DIVERGING WATERFALL CHART -->
+        <div class="xl:col-span-7 saas-panel flex flex-col">
+          <div class="saas-panel-header flex-wrap gap-2">
+            <div>
+              <h2 class="saas-panel-title">3. SHAP Feature Attribution Waterfall (Local Explanation)</h2>
+              <p class="text-[11px] text-[#64748b]">Click any feature bar to inspect textual evidence in Resume vs. JD</p>
+            </div>
+            <div class="flex items-center gap-3 text-[11px] font-bold">
+              <span class="flex items-center gap-1 text-[#c0392b]">
+                <span class="w-2.5 h-2.5 rounded-xs bg-[#c0392b] inline-block"></span> Pushes to Rejection
+              </span>
+              <span class="flex items-center gap-1 text-[#27ae60]">
+                <span class="w-2.5 h-2.5 rounded-xs bg-[#27ae60] inline-block"></span> Pushes to Shortlist
+              </span>
+            </div>
+          </div>
+
+          <!-- Column Headers for Diverging Chart -->
+          <div class="grid grid-cols-12 bg-[#f3f6f9] border-b border-[#d5dee7] px-3 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-[#52606d]">
+            <div class="col-span-5">Feature / Extracted Signal</div>
+            <div class="col-span-5 text-center">SHAP Contribution (Base = 0.50)</div>
+            <div class="col-span-2 text-right">Impact (φᵢ)</div>
+          </div>
+
+          <!-- Interactive Bars Container -->
+          <div id="shapWaterfallContainer" class="divide-y divide-[#eaedf1] flex-1">
+            <!-- Dynamically rendered SHAP rows -->
+          </div>
+
+          <!-- Chart Footer Legend -->
+          <div class="bg-[#f8fafc] border-t border-[#dce2e9] px-3.5 py-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#64748b]">
+            <span>Engine: <strong class="text-[#334155]">Additive Attribution &amp; Semantic Rubric</strong></span>
+            <span>Tip: Click a bar to highlight matching phrases &rarr;</span>
+          </div>
+        </div>
+
+        <!-- RIGHT 5 COLS: EVIDENCE INSPECTOR + ACTIONABLE COUNTERFACTUAL SIMULATOR -->
+        <div class="xl:col-span-5 space-y-4">
+
+          <!-- SELECTED FEATURE EVIDENCE INSPECTOR -->
+          <div class="saas-panel">
+            <div class="saas-panel-header">
+              <h2 class="saas-panel-title flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#2980b9]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                Feature Evidence &amp; Rationale Inspector
+              </h2>
+              <span id="inspectorImpactTag" class="font-mono text-xs font-bold text-[#c0392b]">-0.24</span>
+            </div>
+            <div class="p-3.5 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span id="inspectorFeatureTitle" class="font-bold text-[13px] text-[#1e293b]">Select a feature bar on the left</span>
+                <span id="inspectorCategoryBadge" class="badge-2010 badge-missing">Metadata Constraint</span>
+              </div>
+              <p id="inspectorExplanation" class="text-xs text-[#475569] leading-relaxed">
+                Click any bar in the SHAP Attribution Waterfall to see why the screening model penalized or rewarded this signal.
+              </p>
+              <div class="bg-[#f4f7fa] border border-[#d6dfe8] rounded p-2.5 space-y-1.5">
+                <div class="text-[10.5px] font-bold uppercase tracking-wider text-[#64748b]">Detected Evidence Snippet:</div>
+                <div id="inspectorSnippet" class="font-mono text-[11.5px] text-[#1e293b] bg-white border border-[#dce2e9] rounded px-2 py-1.5">
+                  —
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button onclick="switchTab('diff')" class="btn-silver px-2.5 py-1 text-[11px] flex items-center gap-1">
+                  Inspect in Full Resume vs. JD Diff &rarr;
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONABLE COUNTERFACTUAL "WHAT-IF" SIMULATOR -->
+          <div class="saas-panel">
+            <div class="saas-panel-header">
+              <div>
+                <h2 class="saas-panel-title flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-[#d68910]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  Actionable Counterfactual "What-If" Simulator
+                </h2>
+                <p class="text-[11px] text-[#64748b]">Toggle fixes below to simulate live pass probability recovery</p>
+              </div>
+              <button onclick="resetCounterfactuals()" class="btn-silver px-2 py-0.5 text-[11px]">Reset</button>
+            </div>
+
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5 text-[11.5px] text-[#475569]">
+                <div class="flex items-center gap-1.5">
+                  <input type="checkbox" id="strictNoticeToggle" checked class="rounded border-[#94a3b8]" />
+                  <label for="strictNoticeToggle" class="font-semibold cursor-pointer">Enforce Urgent Hiring Penalty (&gt;30d Notice)</label>
+                </div>
+                <span class="text-[11px] text-[#64748b] italic">TaLens Attribution Ready</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           4. RESUME VS. JD KEYWORD & SEMANTIC GAP MATRIX
+           ================================================================== -->
+      <div class="saas-panel">
+        <div class="saas-panel-header flex-wrap gap-2">
+          <div>
+            <h2 class="saas-panel-title">4. Resume vs. JD Skill &amp; Semantic Gap Matrix</h2>
+            <p class="text-[11px] text-[#64748b]">Structured breakdown of extracted JD requirements, candidate coverage, and attribution weights</p>
+          </div>
+          <div class="flex items-center gap-2 text-[11px]">
+            <span class="badge-2010 badge-matched">Matched</span>
+            <span class="badge-2010 badge-partial">Partial</span>
+            <span class="badge-2010 badge-missing">Missing</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="enterprise-table w-full border-collapse">
+            <thead>
+              <tr>
+                <th class="w-1/4">Required Skill / Attribute</th>
+                <th class="w-28">Category</th>
+                <th class="w-24">JD Weight</th>
+                <th class="w-28">Candidate Status</th>
+                <th class="w-28">SHAP Impact</th>
+                <th>Diagnostic Evidence / Actionable Note</th>
+              </tr>
+            </thead>
+            <tbody id="gapMatrixBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 2: RESUME VS. JD SIDE-BY-SIDE DIFF VIEW
+         ==================================================================== -->
+    <section id="tab-diff" class="hidden space-y-4">
+      <div class="saas-panel">
+        <div class="saas-panel-header flex-wrap gap-2">
+          <div>
+            <h2 class="saas-panel-title">Side-by-Side Resume vs. Job Description Token Attribution Diff</h2>
+            <p class="text-[11px] text-[#64748b]">Green highlights indicate positive SHAP alignment; Red highlights indicate gaps or rejection triggers</p>
+          </div>
+          <button onclick="switchTab('analyzer')" class="btn-silver px-3 py-1 text-xs">&larr; Back to Attribution Dashboard</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-[#dce2e9]">
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between border-b border-[#e2e8f0] pb-1.5">
+              <span class="font-bold text-xs uppercase tracking-wider text-[#2c3e50]">Candidate Resume (Annotated)</span>
+              <span class="text-[11px] text-[#27ae60] font-semibold">Green = Positive Attribution Tokens</span>
+            </div>
+            <div id="diffResumeView" class="p-3 bg-[#fcfdfe] border border-[#d5dee7] rounded text-[13px] leading-relaxed whitespace-pre-wrap min-h-[260px]"></div>
+          </div>
+
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between border-b border-[#e2e8f0] pb-1.5">
+              <span class="font-bold text-xs uppercase tracking-wider text-[#2c3e50]">Target Job Description (Annotated)</span>
+              <span class="text-[11px] text-[#c0392b] font-semibold">Red = Unmatched / Penalized Requirements</span>
+            </div>
+            <div id="diffJdView" class="p-3 bg-[#fcfdfe] border border-[#d5dee7] rounded text-[13px] leading-relaxed whitespace-pre-wrap min-h-[260px]"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 3: FEATURE WEIGHTS & SHAP MODEL CALIBRATION
+         ==================================================================== -->
+    <section id="tab-weights" class="hidden space-y-4">
+      <div class="saas-panel">
+        <div class="saas-panel-header flex-wrap gap-2">
+          <div>
+            <h2 class="saas-panel-title">SHAP Attribution Rubric &amp; Feature Weight Calibration</h2>
+            <p class="text-[11px] text-[#64748b]">Inspect and adjust how the ATS screening model weights technical stack, domain alignment, metrics, and notice period</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="resetModelWeights()" class="btn-silver px-2.5 py-1 text-xs">Restore Defaults</button>
+            <button onclick="applyWeightsAndReturn()" class="btn-glossy-primary px-3 py-1 text-xs">Apply Weights &amp; Recalculate</button>
+          </div>
+        </div>
+
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-[#f8fafc] border border-[#d5dee7] rounded p-3.5 space-y-3">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-[#2c3e50] border-b border-[#dce2e9] pb-1.5">Global Feature Importance Sliders</h3>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-semibold">
+                <span>Core Technical Stack &amp; Keyword Coverage</span>
+                <span id="wSkillVal" class="font-mono text-[#2980b9]">1.0x</span>
+              </div>
+              <input type="range" id="wSkillSlider" min="0.5" max="1.8" step="0.1" value="1.0" class="w-full" oninput="updateWeightLabels()" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-semibold">
+                <span>Notice Period / Immediate Availability Sensitivity</span>
+                <span id="wNoticeVal" class="font-mono text-[#2980b9]">1.0x</span>
+              </div>
+              <input type="range" id="wNoticeSlider" min="0.5" max="1.8" step="0.1" value="1.0" class="w-full" oninput="updateWeightLabels()" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-semibold">
+                <span>Quantified Business &amp; Latency Impact Metrics</span>
+                <span id="wMetricsVal" class="font-mono text-[#2980b9]">1.0x</span>
+              </div>
+              <input type="range" id="wMetricsSlider" min="0.5" max="1.8" step="0.1" value="1.0" class="w-full" oninput="updateWeightLabels()" />
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-xs font-semibold">
+                <span>Domain &amp; Architecture Pedigree Alignment</span>
+                <span id="wDomainVal" class="font-mono text-[#2980b9]">1.0x</span>
+              </div>
+              <input type="range" id="wDomainSlider" min="0.5" max="1.8" step="0.1" value="1.0" class="w-full" oninput="updateWeightLabels()" />
+            </div>
+          </div>
+
+          <div class="bg-[#f8fafc] border border-[#d5dee7] rounded p-3.5 space-y-2.5 text-xs text-[#475569]">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-[#2c3e50] border-b border-[#dce2e9] pb-1.5">SHAP Mathematical Formulation</h3>
+            <p>
+              Each candidate evaluation computes an additive feature attribution explanation around the baseline prior probability <code class="bg-white border border-[#cbd5e1] px-1 rounded">E[f(x)] = 0.50</code>:
+            </p>
+            <div class="bg-white border border-[#cbd5e1] rounded p-2.5 font-mono text-[11.5px] text-[#1e293b]">
+              P(Shortlist | x) = clamp( E[f(x)] + Σ φᵢ(x), 0.04, 0.98 )
+            </div>
+            <ul class="list-disc pl-4 space-y-1">
+              <li><strong>Positive φᵢ (&gt; 0):</strong> Skills, quantified telemetry, seniority match, and pedigree pushing the candidate toward recruiter shortlist.</li>
+              <li><strong>Negative φᵢ (&lt; 0):</strong> Missing mandatory infrastructure keywords, 60–90 day notice period penalties, or unquantified bullet points.</li>
+              <li><strong>Counterfactual Recourse:</strong> Identifies minimal-effort edits (Δx) needed to cross the <code>0.65</code> pass boundary.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 4: SAMPLE PROFILES DIRECTORY
+         ==================================================================== -->
+    <section id="tab-samples" class="hidden space-y-4">
+      <div class="saas-panel">
+        <div class="saas-panel-header">
+          <div>
+            <h2 class="saas-panel-title">Benchmark Rejection &amp; Borderline Candidate Profiles</h2>
+            <p class="text-[11px] text-[#64748b]">Load curated evaluation scenarios to explore different failure modes in automated resume screening</p>
+          </div>
+        </div>
+
+        <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Card 1 -->
+          <div class="border border-[#c5ced8] rounded bg-[#fcfdfe] p-3.5 flex flex-col justify-between space-y-3 shadow-sm">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="badge-2010 badge-missing">Rejected (34%)</span>
+                <span class="text-[11px] font-mono text-[#64748b]">Case #104</span>
+              </div>
+              <h3 class="font-bold text-sm text-[#1e293b]">Senior Backend Engineer (ATS Filter)</h3>
+              <p class="text-xs text-[#475569]">
+                Strong Python &amp; Go engineer with 5 years experience, but auto-rejected due to a <strong>90-day notice period</strong>, missing <strong>Kubernetes/Kafka</strong> keywords, and lack of quantified throughput metrics.
+              </p>
+            </div>
+            <button onclick="loadPreset('backend'); switchTab('analyzer');" class="btn-glossy-primary w-full py-1.5 text-xs">Load &amp; Analyze Case #104</button>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="border border-[#c5ced8] rounded bg-[#fcfdfe] p-3.5 flex flex-col justify-between space-y-3 shadow-sm">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="badge-2010 badge-missing">Rejected (39%)</span>
+                <span class="text-[11px] font-mono text-[#64748b]">Case #209</span>
+              </div>
+              <h3 class="font-bold text-sm text-[#1e293b]">Senior Product Manager (Domain Gap)</h3>
+              <p class="text-xs text-[#475569]">
+                Experienced B2C mobile PM applying to an Enterprise B2B FinTech Payments role. Penalized for missing <strong>PCI-DSS, API monetization, and SQL cohort funnel</strong> evidence.
+              </p>
+            </div>
+            <button onclick="loadPreset('pm'); switchTab('analyzer');" class="btn-glossy-primary w-full py-1.5 text-xs">Load &amp; Analyze Case #209</button>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="border border-[#c5ced8] rounded bg-[#fcfdfe] p-3.5 flex flex-col justify-between space-y-3 shadow-sm">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="badge-2010 badge-partial">Borderline (56%)</span>
+                <span class="text-[11px] font-mono text-[#64748b]">Case #312</span>
+              </div>
+              <h3 class="font-bold text-sm text-[#1e293b]">Frontend Developer (Skills Match)</h3>
+              <p class="text-xs text-[#475569]">
+                Solid React &amp; TypeScript developer sitting just 9% below the shortlist cutoff due to missing <strong>Web Performance (Core Web Vitals)</strong> and <strong>Automated E2E Testing</strong> signals.
+              </p>
+            </div>
+            <button onclick="loadPreset('frontend'); switchTab('analyzer');" class="btn-glossy-primary w-full py-1.5 text-xs">Load &amp; Analyze Case #312</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-[1380px] mx-auto px-3 sm:px-5 py-4 text-[11px] text-[#64748b] flex flex-wrap items-center justify-between gap-2 border-t border-[#d2dae2] mt-4">
+    <div><strong>TaLens - Talent Lens, A Feature Attribution based Job Rejection Calculator</strong> &bull; Built by <strong>Komal Sai Raj Atmakuri</strong> (<a href="https://github.com/komalsratmakuri/talens" target="_blank" rel="noopener noreferrer" class="text-[#2980b9] hover:underline">@komalsratmakuri</a>)</div>
+    <div>100% client-side execution &bull; Open Source on GitHub</div>
+  </footer>
+
+  <!-- ======================================================================
+       APPLICATION LOGIC: NLP SCORING, SHAP ATTRIBUTION & COUNTERFACTUAL ENGINE
+       ====================================================================== -->
+  <script>
+    // ------------------------------------------------------------------------
+    // 1. PRESET BENCHMARK SCENARIOS
+    // ------------------------------------------------------------------------
+    const PRESETS = {
+      backend: {
+        resume: `Senior Software Engineer with 5 years of experience building RESTful APIs and microservices using Python, Django, and Go. Worked at a Tier-1 product company maintaining PostgreSQL and Redis data layers for internal billing tools. Responsible for code reviews, onboarding junior engineers, and migrating legacy monolith endpoints to containerized services.`,
+        jd: `We are hiring a Senior Backend Engineer for our Cloud Infrastructure & Distributed SaaS platform (5+ years experience required). Must have deep production expertise in Python or Go, Distributed Systems, Kubernetes, Kafka event streaming, and PostgreSQL optimization. Candidates should demonstrate quantified latency/throughput improvements (e.g., p99 latency reduction, high QPS scale) and be available within 30 days.`,
+        exp: "5",
+        notice: "90",
+        roleLevel: "senior",
+        industry: "cloud",
+        strictNotice: true,
+        chips: { tier1: true, quantified: false, sysdesign: false, oss: true, jobhop: false }
+      },
+      pm: {
+        resume: `Product Manager with 5 years leading consumer mobile app growth, user onboarding flows, and push notification engagement campaigns. Collaborated with UX designers and iOS/Android engineers to launch social sharing features and ran A/B tests to improve DAU retention. Skilled in Jira, Figma, and stakeholder roadmapping.`,
+        jd: `Seeking a Senior Product Manager for our B2B FinTech Payments & Ledger platform (5+ years PM experience). Ideal candidate brings strong FinTech / payment gateway domain expertise, API monetization strategy, SQL & cohort funnel analytics, PCI-DSS compliance familiarity, and quantified ARR / conversion lift metrics. Immediate or 30-day joiners strongly preferred.`,
+        exp: "5",
+        notice: "60",
+        roleLevel: "senior",
+        industry: "fintech",
+        strictNotice: true,
+        chips: { tier1: false, quantified: false, sysdesign: false, oss: true, jobhop: false }
+      },
+      frontend: {
+        resume: `Frontend Developer with 3 years of experience building responsive single-page applications in React, TypeScript, Redux, and Tailwind CSS. Built reusable component libraries and integrated GraphQL APIs for an e-commerce dashboard. Collaborated closely with product designers to deliver accessible UI workflows.`,
+        jd: `Looking for a Mid-Level Frontend Engineer (3+ years experience) proficient in React, TypeScript, and modern CSS architecture. Strong bonus for Core Web Vitals performance optimization, Automated E2E Testing (Playwright/Cypress), CI/CD pipelines, and quantified bundle size or conversion metrics.`,
+        exp: "3",
+        notice: "30",
+        roleLevel: "mid",
+        industry: "consumer",
+        strictNotice: true,
+        chips: { tier1: true, quantified: false, sysdesign: false, oss: false, jobhop: false }
+      }
+    };
+
+    // ------------------------------------------------------------------------
+    // 2. APPLICATION STATE
+    // ------------------------------------------------------------------------
+    let state = {
+      activeTab: "analyzer",
+      notice: "90",
+      chips: { tier1: true, quantified: false, sysdesign: false, oss: true, jobhop: false },
+      weights: { skill: 1.0, notice: 1.0, metrics: 1.0, domain: 1.0 },
+      baseFeatures: [],
+      counterfactuals: [],
+      activeCounterfactualIds: new Set(),
+      selectedFeatureId: null,
+      gapMatrix: []
+    };
+
+    // ------------------------------------------------------------------------
+    // 3. INITIALIZATION & NAVIGATION
+    // ------------------------------------------------------------------------
+    window.addEventListener("DOMContentLoaded", () => {
+      // Tab listeners
+      document.querySelectorAll("#mainNavTabs .nav-tab").forEach(btn => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
+
+      // Notice period segmented buttons
+      document.querySelectorAll("#noticePeriodGroup .segmented-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#noticePeriodGroup .segmented-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.notice = btn.dataset.notice;
+          computeAndRenderAttribution(false);
+        });
+      });
+
+      // Live word counters & reactive updates
+      const resumeEl = document.getElementById("resumeInput");
+      const jdEl = document.getElementById("jdInput");
+      resumeEl.addEventListener("input", updateWordCounts);
+      jdEl.addEventListener("input", updateWordCounts);
+
+      document.getElementById("expYearsSelect").addEventListener("change", () => computeAndRenderAttribution(false));
+      document.getElementById("roleLevelSelect").addEventListener("change", () => computeAndRenderAttribution(false));
+      document.getElementById("industrySelect").addEventListener("change", () => computeAndRenderAttribution(false));
+      document.getElementById("strictNoticeToggle").addEventListener("change", () => computeAndRenderAttribution(false));
+
+      // Load default preset immediately
+      loadPreset("backend", false);
+    });
+
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+      document.querySelectorAll("#mainNavTabs .nav-tab").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.tab === tabName);
+      });
+      ["analyzer", "diff", "weights", "samples"].forEach(id => {
+        const el = document.getElementById(`tab-${id}`);
+        if (el) el.classList.toggle("hidden", id !== tabName);
+      });
+      if (tabName === "diff") {
+        renderDiffView();
+      }
+    }
+
+    function updateWordCounts() {
+      const rWords = document.getElementById("resumeInput").value.trim().split(/\s+/).filter(Boolean).length;
+      const jWords = document.getElementById("jdInput").value.trim().split(/\s+/).filter(Boolean).length;
+      document.getElementById("resumeWordCount").textContent = `${rWords} words`;
+      document.getElementById("jdWordCount").textContent = `${jWords} words`;
+    }
+
+    function toggleChip(el) {
+      const key = el.dataset.chip;
+      const isNegativeChip = key === "jobhop";
+      state.chips[key] = !state.chips[key];
+      el.classList.remove("active-pos", "active-neg");
+      const iconSpan = el.querySelector("span");
+      if (state.chips[key]) {
+        el.classList.add(isNegativeChip ? "active-neg" : "active-pos");
+        iconSpan.textContent = isNegativeChip ? "!" : "✓";
+      } else {
+        iconSpan.textContent = isNegativeChip ? "!" : "+";
+      }
+      computeAndRenderAttribution(false);
+    }
+
+    function syncChipsUI() {
+      document.querySelectorAll("#candidateChips .attr-chip").forEach(el => {
+        const key = el.dataset.chip;
+        const isNegativeChip = key === "jobhop";
+        const active = !!state.chips[key];
+        el.classList.remove("active-pos", "active-neg");
+        const iconSpan = el.querySelector("span");
+        if (active) {
+          el.classList.add(isNegativeChip ? "active-neg" : "active-pos");
+          iconSpan.textContent = isNegativeChip ? "!" : "✓";
+        } else {
+          iconSpan.textContent = isNegativeChip ? "!" : "+";
+        }
+      });
+    }
+
+    function loadPreset(key, animate = true) {
+      const p = PRESETS[key];
+      if (!p) return;
+
+      document.querySelectorAll("#presetBar button").forEach(b => b.classList.remove("selected"));
+      const activeBtn = document.getElementById(`preset-${key}`);
+      if (activeBtn) activeBtn.classList.add("selected");
+
+      document.getElementById("resumeInput").value = p.resume;
+      document.getElementById("jdInput").value = p.jd;
+      document.getElementById("expYearsSelect").value = p.exp;
+      document.getElementById("roleLevelSelect").value = p.roleLevel;
+      document.getElementById("industrySelect").value = p.industry;
+      document.getElementById("strictNoticeToggle").checked = p.strictNotice;
+
+      state.notice = p.notice;
+      document.querySelectorAll("#noticePeriodGroup .segmented-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.notice === p.notice);
+      });
+
+      state.chips = { ...p.chips };
+      syncChipsUI();
+      state.activeCounterfactualIds.clear();
+      updateWordCounts();
+
+      if (animate) {
+        runAttributionAnalysis();
+      } else {
+        computeAndRenderAttribution(true);
+      }
+    }
+
+    function clearInputs() {
+      document.getElementById("resumeInput").value = "";
+      document.getElementById("jdInput").value = "";
+      state.activeCounterfactualIds.clear();
+      updateWordCounts();
+      computeAndRenderAttribution(true);
+    }
+
+    // ------------------------------------------------------------------------
+    // 4. REALISTIC MULTI-STEP EXECUTION PROGRESS BAR
+    // ------------------------------------------------------------------------
+    function runAttributionAnalysis() {
+      const wrap = document.getElementById("analysisProgressWrap");
+      const bar = document.getElementById("analysisProgressBar");
+      const stepLabel = document.getElementById("analysisStepLabel");
+      const pctLabel = document.getElementById("analysisPercentLabel");
+
+      wrap.classList.remove("hidden");
+      const steps = [
+        { pct: 30, text: "Tokenizing Resume & JD Semantic Embeddings..." },
+        { pct: 68, text: "Computing KernelSHAP Marginal Feature Attributions..." },
+        { pct: 100, text: "Generating Actionable Counterfactual Recourse..." }
+      ];
+
+      let idx = 0;
+      function advance() {
+        if (idx < steps.length) {
+          bar.style.width = steps[idx].pct + "%";
+          pctLabel.textContent = steps[idx].pct + "%";
+          stepLabel.textContent = steps[idx].text;
+          idx++;
+          setTimeout(advance, 190);
+        } else {
+          setTimeout(() => {
+            wrap.classList.add("hidden");
+            state.activeCounterfactualIds.clear();
+            computeAndRenderAttribution(true);
+          }, 160);
+        }
+      }
+      advance();
+    }
+
+    // ------------------------------------------------------------------------
+    // 5. CLIENT-SIDE NLP & SHAP FEATURE ATTRIBUTION ENGINE
+    // ------------------------------------------------------------------------
+    const SKILL_DICTIONARY = [
+      { term: "python", label: "Python", category: "Core Language", weight: 0.10 },
+      { term: "go", label: "Go (Golang)", category: "Core Language", weight: 0.10 },
+      { term: "golang", label: "Go (Golang)", category: "Core Language", weight: 0.10 },
+      { term: "java", label: "Java", category: "Core Language", weight: 0.09 },
+      { term: "typescript", label: "TypeScript", category: "Core Language", weight: 0.10 },
+      { term: "react", label: "React.js", category: "Frontend Framework", weight: 0.11 },
+      { term: "kubernetes", label: "Kubernetes (K8s)", category: "Cloud / Infra", weight: 0.12 },
+      { term: "kafka", label: "Apache Kafka", category: "Distributed Messaging", weight: 0.10 },
+      { term: "distributed systems", label: "Distributed Systems", category: "Architecture", weight: 0.12 },
+      { term: "postgresql", label: "PostgreSQL", category: "Database", weight: 0.08 },
+      { term: "redis", label: "Redis", category: "Caching / Store", weight: 0.06 },
+      { term: "graphql", label: "GraphQL", category: "API Layer", weight: 0.07 },
+      { term: "core web vitals", label: "Core Web Vitals", category: "Web Performance", weight: 0.11 },
+      { term: "playwright", label: "E2E Testing (Playwright/Cypress)", category: "QA Automation", weight: 0.09 },
+      { term: "cypress", label: "E2E Testing (Playwright/Cypress)", category: "QA Automation", weight: 0.09 },
+      { term: "ci/cd", label: "CI/CD Pipelines", category: "DevOps", weight: 0.07 },
+      { term: "fintech", label: "FinTech / Payments Domain", category: "Domain Expertise", weight: 0.14 },
+      { term: "payment", label: "Payment Gateways & Ledger", category: "Domain Expertise", weight: 0.12 },
+      { term: "pci-dss", label: "PCI-DSS Compliance", category: "Regulatory", weight: 0.09 },
+      { term: "api monetization", label: "API Monetization Strategy", category: "Product Strategy", weight: 0.10 },
+      { term: "sql", label: "SQL & Cohort Funnel Analytics", category: "Data Analytics", weight: 0.09 },
+      { term: "a/b test", label: "A/B Experimentation", category: "Growth", weight: 0.07 },
+      { term: "microservices", label: "Microservices Architecture", category: "Architecture", weight: 0.08 }
+    ];
+
+    function computeAndRenderAttribution(resetSelection = false) {
+      const resumeRaw = document.getElementById("resumeInput").value || "";
+      const jdRaw = document.getElementById("jdInput").value || "";
+      const resumeLower = resumeRaw.toLowerCase();
+      const jdLower = jdRaw.toLowerCase();
+
+      const expYears = parseInt(document.getElementById("expYearsSelect").value, 10);
+      const roleLevel = document.getElementById("roleLevelSelect").value;
+      const strictNotice = document.getElementById("strictNoticeToggle").checked;
+
+      const wSkill = state.weights.skill;
+      const wNotice = state.weights.notice;
+      const wMetrics = state.weights.metrics;
+      const wDomain = state.weights.domain;
+
+      const features = [];
+      const gapRows = [];
+      const matchedSkills = [];
+      const missingSkills = [];
+
+      // Deduplicate skill checks by label
+      const seenLabels = new Set();
+      SKILL_DICTIONARY.forEach(item => {
+        if (seenLabels.has(item.label)) return;
+        const inJd = jdLower.includes(item.term);
+        const inResume = resumeLower.includes(item.term);
+        if (inJd || inResume) {
+          seenLabels.add(item.label);
+        }
+        if (inJd && inResume) {
+          matchedSkills.push(item);
+          gapRows.push({
+            skill: item.label,
+            category: item.category,
+            jdWeight: "High (" + Math.round(item.weight * 100) + "%)",
+            status: "matched",
+            impact: +(item.weight * wSkill).toFixed(2),
+            note: `Verified direct token match in both Resume and JD.`
+          });
+        } else if (inJd && !inResume) {
+          missingSkills.push(item);
+          gapRows.push({
+            skill: item.label,
+            category: item.category,
+            jdWeight: "Critical (" + Math.round(item.weight * 100) + "%)",
+            status: "missing",
+            impact: +(-item.weight * wSkill).toFixed(2),
+            note: `Required in JD but absent from Candidate Resume.`
+          });
+        }
+      });
+
+      // Fallback if custom short text has few dictionary matches
+      if (matchedSkills.length === 0 && missingSkills.length === 0 && (resumeLower.length > 10 || jdLower.length > 10)) {
+        const jdTokens = Array.from(new Set(jdLower.match(/\b[a-z]{5,}\b/g) || [])).slice(0, 6);
+        jdTokens.forEach(tok => {
+          const hit = resumeLower.includes(tok);
+          gapRows.push({
+            skill: tok.charAt(0).toUpperCase() + tok.slice(1),
+            category: "Extracted Keyword",
+            jdWeight: "Moderate (8%)",
+            status: hit ? "matched" : "missing",
+            impact: hit ? 0.07 : -0.07,
+            note: hit ? "Matched domain keyword across documents." : "Keyword present in JD but not found in Resume."
+          });
+        });
+      }
+
+      // 1. Notice Period Feature Attribution
+      if (state.notice === "90" && strictNotice) {
+        const val = +(-0.24 * wNotice).toFixed(2);
+        features.push({
+          id: "feat_notice",
+          label: "Notice Period: 90 Days",
+          category: "Availability Constraint",
+          value: val,
+          snippet: `Candidate Availability: 90 Days | JD Requirement: Immediate / <= 30 Days`,
+          explanation: "Recruiter triage rules apply a heavy negative attribution (-0.24) when notice period exceeds 60 days for urgent backfill requisitions."
+        });
+        gapRows.push({
+          skill: "Joining Availability (<= 30 Days)",
+          category: "Operational SLA",
+          jdWeight: "Mandatory",
+          status: "missing",
+          impact: val,
+          note: "90-day notice period triggers automated ATS hold."
+        });
+      } else if (state.notice === "60" && strictNotice) {
+        const val = +(-0.14 * wNotice).toFixed(2);
+        features.push({
+          id: "feat_notice",
+          label: "Notice Period: 60 Days",
+          category: "Availability Constraint",
+          value: val,
+          snippet: `Candidate Availability: 60 Days | JD Requirement: Immediate / <= 30 Days`,
+          explanation: "60-day notice window incurs a moderate negative penalty compared to immediate or 30-day candidates."
+        });
+        gapRows.push({
+          skill: "Joining Availability (<= 30 Days)",
+          category: "Operational SLA",
+          jdWeight: "High",
+          status: "partial",
+          impact: val,
+          note: "60-day notice period slightly exceeds preferred 30-day window."
+        });
+      } else {
+        const val = +(0.09 * wNotice).toFixed(2);
+        features.push({
+          id: "feat_notice",
+          label: `Notice Period: ${state.notice === "immediate" ? "Immediate" : "30 Days"}`,
+          category: "Availability Alignment",
+          value: val,
+          snippet: `Candidate Availability: ${state.notice === "immediate" ? "Immediate" : "30 Days"} (Meets SLA)`,
+          explanation: "Rapid join availability aligns with hiring manager SLA and boosts shortlist probability."
+        });
+        gapRows.push({
+          skill: "Joining Availability (<= 30 Days)",
+          category: "Operational SLA",
+          jdWeight: "Mandatory",
+          status: "matched",
+          impact: val,
+          note: "Candidate meets urgent onboarding timeline."
+        });
+      }
+
+      // 2. Missing Critical Skills Aggregate Feature
+      if (missingSkills.length > 0) {
+        const topMissingNames = missingSkills.slice(0, 3).map(s => s.label).join(" / ");
+        const rawPenalty = missingSkills.slice(0, 3).reduce((acc, s) => acc + s.weight, 0) * 0.78 * wSkill;
+        const val = +(-Math.min(0.26, Math.max(0.10, rawPenalty))).toFixed(2);
+        features.push({
+          id: "feat_missing_skills",
+          label: `Missing Keyword: ${topMissingNames}`,
+          category: "Technical / Domain Gap",
+          value: val,
+          snippet: `JD Required [${topMissingNames}] — Not detected in Candidate Resume`,
+          explanation: `Semantic & exact-match scorer penalized missing high-weight JD requirements (${topMissingNames}).`
+        });
+      }
+
+      // 3. Matched Core Skills Aggregate Feature
+      if (matchedSkills.length > 0) {
+        const topMatchedNames = matchedSkills.slice(0, 3).map(s => s.label).join(" / ");
+        const rawBoost = matchedSkills.slice(0, 3).reduce((acc, s) => acc + s.weight, 0) * 0.72 * wSkill;
+        const val = +(Math.min(0.24, Math.max(0.08, rawBoost))).toFixed(2);
+        features.push({
+          id: "feat_matched_skills",
+          label: `Core Stack Match: ${topMatchedNames}`,
+          category: "Skill Alignment",
+          value: val,
+          snippet: `Matched Keywords in Resume & JD: ${topMatchedNames}`,
+          explanation: `Strong lexical and semantic overlap on core required competencies (${topMatchedNames}).`
+        });
+      }
+
+      // 4. Quantified Impact Metrics Check (Regex for %, $, ms, QPS, ARR, x + Chip)
+      const hasNumericMetrics = /(\d+%|\$\d+|\d+ms|\d+x|\bqps\b|\barr\b|\bdau\b)/i.test(resumeRaw) || state.chips.quantified;
+      if (!hasNumericMetrics) {
+        const val = +(-0.12 * wMetrics).toFixed(2);
+        features.push({
+          id: "feat_metrics",
+          label: "Lack of Quantified Metrics",
+          category: "Impact Evidence",
+          value: val,
+          snippet: "No numeric KPIs (%, ms latency, QPS, revenue/ARR lift) found in experience bullets.",
+          explanation: "Modern ATS ranking models penalize purely descriptive task bullets lacking measurable business or system telemetry."
+        });
+        gapRows.push({
+          skill: "Quantified Telemetry / Business KPIs",
+          category: "Impact Rubric",
+          jdWeight: "High (12%)",
+          status: "missing",
+          impact: val,
+          note: "Add concrete %, latency (ms), or ARR lift figures."
+        });
+      } else {
+        const val = +(0.11 * wMetrics).toFixed(2);
+        features.push({
+          id: "feat_metrics",
+          label: "Quantified Impact Telemetry",
+          category: "Impact Evidence",
+          value: val,
+          snippet: "Verified measurable KPIs / outcome metrics in candidate summary.",
+          explanation: "Quantified outcomes validate production ownership and elevate recruiter confidence."
+        });
+        gapRows.push({
+          skill: "Quantified Telemetry / Business KPIs",
+          category: "Impact Rubric",
+          jdWeight: "High (12%)",
+          status: "matched",
+          impact: val,
+          note: "Strong outcome-oriented bullet points detected."
+        });
+      }
+
+      // 5. Years of Experience vs Role Level
+      const requiredYearsMap = { junior: 1, mid: 3, senior: 5, staff: 8 };
+      const reqYears = requiredYearsMap[roleLevel] || 5;
+      const expDiff = expYears - reqYears;
+      if (expDiff >= 0) {
+        const val = +(Math.min(0.14, 0.08 + expDiff * 0.02)).toFixed(2);
+        features.push({
+          id: "feat_exp",
+          label: `Years of Experience: ${expYears} yrs`,
+          category: "Seniority Match",
+          value: val,
+          snippet: `Candidate Experience (${expYears} yrs) >= Role Target (${reqYears}+ yrs)`,
+          explanation: `Candidate meets or exceeds the minimum tenure requirement (${reqYears}+ years) for this ${roleLevel.toUpperCase()} requisition.`
+        });
+      } else {
+        const val = +(Math.max(-0.18, expDiff * 0.06)).toFixed(2);
+        features.push({
+          id: "feat_exp",
+          label: `Experience Gap: ${expYears} vs ${reqYears}+ yrs`,
+          category: "Seniority Gap",
+          value: val,
+          snippet: `Candidate Experience (${expYears} yrs) < Role Target (${reqYears}+ yrs)`,
+          explanation: `Candidate falls ${Math.abs(expDiff)} year(s) short of the calibrated seniority bar.`
+        });
+      }
+
+      // 6. Tier-1 / Product Pedigree & Architecture Signals
+      if (state.chips.tier1) {
+        const val = +(0.07 * wDomain).toFixed(2);
+        features.push({
+          id: "feat_pedigree",
+          label: "Tier-1 / Product Pedigree",
+          category: "Employer Signal",
+          value: val,
+          snippet: "Verified high-scale product engineering environment pedigree.",
+          explanation: "Prior experience in high-bar product teams positively correlates with engineering rigor."
+        });
+      }
+
+      if (state.chips.sysdesign) {
+        const val = +(0.09 * wDomain).toFixed(2);
+        features.push({
+          id: "feat_sysdesign",
+          label: "Distributed System Design",
+          category: "Architecture",
+          value: val,
+          snippet: "System design & architectural ownership signal enabled.",
+          explanation: "Demonstrated architectural ownership boosts senior-band evaluation."
+        });
+      }
+
+      if (state.chips.jobhop) {
+        features.push({
+          id: "feat_jobhop",
+          label: "Tenure Stability Flag (<1 yr)",
+          category: "Retention Risk",
+          value: -0.10,
+          snippet: "Multiple short tenures (<12 months) flagged by attrition heuristic.",
+          explanation: "Short average tenure triggers a retention risk penalty in automated screening."
+        });
+      }
+
+      // Sort by absolute attribution magnitude descending
+      features.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+
+      state.baseFeatures = features;
+      state.gapMatrix = gapRows;
+
+      // Build Actionable Counterfactuals based on detected negative drivers
+      buildCounterfactualOptions(features, missingSkills);
+
+      if (resetSelection || !features.some(f => f.id === state.selectedFeatureId)) {
+        state.selectedFeatureId = features.length ? features[0].id : null;
+      }
+
+      renderDashboard();
+    }
+
+    // ------------------------------------------------------------------------
+    // 6. ACTIONABLE COUNTERFACTUAL GENERATOR
+    // ------------------------------------------------------------------------
+    function buildCounterfactualOptions(features, missingSkills) {
+      const options = [];
+
+      const noticeFeat = features.find(f => f.id === "feat_notice" && f.value < 0);
+      if (noticeFeat) {
+        const gain = +(Math.abs(noticeFeat.value) + 0.04).toFixed(2);
+        options.push({
+          id: "cf_notice",
+          title: "Negotiate Notice Period to 30 Days (Buyout / Early Release)",
+          delta: gain,
+          targetFeatureId: "feat_notice",
+          newFeatureLabel: "Notice Period: 30 Days (Simulated)",
+          newFeatureValue: 0.04
+        });
+      }
+
+      if (missingSkills.length > 0) {
+        const names = missingSkills.slice(0, 2).map(s => s.label).join(" & ");
+        const missingFeat = features.find(f => f.id === "feat_missing_skills");
+        const gain = missingFeat ? +(Math.abs(missingFeat.value) + 0.05).toFixed(2) : 0.15;
+        options.push({
+          id: "cf_skills",
+          title: `Highlight ${names} Architecture & Hands-On Project Evidence`,
+          delta: gain,
+          targetFeatureId: "feat_missing_skills",
+          newFeatureLabel: `Added Stack Evidence: ${names}`,
+          newFeatureValue: 0.05
+        });
+      }
+
+      const metricsFeat = features.find(f => f.id === "feat_metrics" && f.value < 0);
+      if (metricsFeat) {
+        const gain = +(Math.abs(metricsFeat.value) + 0.07).toFixed(2);
+        options.push({
+          id: "cf_metrics",
+          title: "Quantify Bullet Points with Latency (p99 ms), Scale & Revenue KPIs",
+          delta: gain,
+          targetFeatureId: "feat_metrics",
+          newFeatureLabel: "Quantified Impact Metrics (Simulated)",
+          newFeatureValue: 0.07
+        });
+      }
+
+      if (!state.chips.sysdesign) {
+        options.push({
+          id: "cf_sysdesign",
+          title: "Add High-Availability System Design & Ownership Summary",
+          delta: 0.09,
+          targetFeatureId: "feat_sysdesign",
+          newFeatureLabel: "Distributed System Design (Simulated)",
+          newFeatureValue: 0.09
+        });
+      }
+
+      state.counterfactuals = options;
+    }
+
+    function toggleCounterfactual(cfId) {
+      if (state.activeCounterfactualIds.has(cfId)) {
+        state.activeCounterfactualIds.delete(cfId);
+      } else {
+        state.activeCounterfactualIds.add(cfId);
+      }
+      renderDashboard();
+    }
+
+    function resetCounterfactuals() {
+      state.activeCounterfactualIds.clear();
+      renderDashboard();
+    }
+
+    // ------------------------------------------------------------------------
+    // 7. RENDER DASHBOARD (GAUGE, WATERFALL, INSPECTOR, COUNTERFACTUALS, TABLE)
+    // ------------------------------------------------------------------------
+    function renderDashboard() {
+      const basePrior = 0.50;
+
+      // Compute original baseline probability
+      const origSum = state.baseFeatures.reduce((acc, f) => acc + f.value, 0);
+      const origProb = Math.min(0.98, Math.max(0.04, basePrior + origSum));
+      const origPct = Math.round(origProb * 100);
+
+      // Apply active counterfactuals to build effective feature list
+      let effectiveFeatures = state.baseFeatures.map(f => ({ ...f }));
+      let simGain = 0;
+
+      state.counterfactuals.forEach(cf => {
+        if (state.activeCounterfactualIds.has(cf.id)) {
+          simGain += cf.delta;
+          const existingIdx = effectiveFeatures.findIndex(f => f.id === cf.targetFeatureId);
+          if (existingIdx !== -1) {
+            effectiveFeatures[existingIdx] = {
+              ...effectiveFeatures[existingIdx],
+              label: cf.newFeatureLabel,
+              value: cf.newFeatureValue,
+              simulated: true
+            };
+          } else {
+            effectiveFeatures.push({
+              id: cf.targetFeatureId,
+              label: cf.newFeatureLabel,
+              category: "Counterfactual Fix",
+              value: cf.newFeatureValue,
+              snippet: cf.title,
+              explanation: "Simulated resume/profile improvement applied via Counterfactual Simulator.",
+              simulated: true
+            });
+          }
+        }
+      });
+
+      effectiveFeatures.sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
+
+      const netSum = effectiveFeatures.reduce((acc, f) => acc + f.value, 0);
+      const finalProb = Math.min(0.98, Math.max(0.04, basePrior + netSum));
+      const finalPct = Math.round(finalProb * 100);
+      const pctDelta = finalPct - origPct;
+
+      // 1. Update Executive Scorecard & Gauge
+      const scoreEl = document.getElementById("scorePercentDisplay");
+      const badgeEl = document.getElementById("verdictBadge");
+      const headlineEl = document.getElementById("verdictHeadline");
+      const meterEl = document.getElementById("probabilityMeterFill");
+      const deltaBadge = document.getElementById("scoreDeltaBadge");
+      const simPill = document.getElementById("simulationActivePill");
+
+      scoreEl.textContent = `${finalPct}%`;
+      meterEl.style.width = `${finalPct}%`;
+      document.getElementById("netShapSumText").textContent = `Net SHAP Shift: ${netSum >= 0 ? "+" : ""}${netSum.toFixed(2)}`;
+
+      if (state.activeCounterfactualIds.size > 0) {
+        simPill.classList.remove("hidden");
+        deltaBadge.classList.remove("hidden");
+        deltaBadge.textContent = `${pctDelta >= 0 ? "+" : ""}${pctDelta}%`;
+      } else {
+        simPill.classList.add("hidden");
+        deltaBadge.classList.add("hidden");
+      }
+
+      meterEl.classList.remove("meter-fill-red", "meter-fill-amber", "meter-fill-green");
+      badgeEl.classList.remove("badge-missing", "badge-partial", "badge-matched");
+
+      if (finalPct >= 65) {
+        scoreEl.className = "text-3xl font-extrabold tracking-tight text-[#27ae60]";
+        meterEl.classList.add("meter-fill-green");
+        badgeEl.classList.add("badge-matched");
+        badgeEl.textContent = "SHORTLIST RECOMMENDED";
+        headlineEl.className = "text-[#1e8449]";
+        headlineEl.textContent = `Decision: Passed ATS & Recruiter Threshold (+${finalPct - 65}% above 65% cutoff)`;
+      } else if (finalPct >= 50) {
+        scoreEl.className = "text-3xl font-extrabold tracking-tight text-[#d68910]";
+        meterEl.classList.add("meter-fill-amber");
+        badgeEl.classList.add("badge-partial");
+        badgeEl.textContent = "BORDERLINE / MANUAL REVIEW";
+        headlineEl.className = "text-[#9a7d0a]";
+        headlineEl.textContent = `Decision: Borderline Hold (${65 - finalPct}% below shortlist threshold — recoverable)`;
+      } else {
+        scoreEl.className = "text-3xl font-extrabold tracking-tight text-[#c0392b]";
+        meterEl.classList.add("meter-fill-red");
+        badgeEl.classList.add("badge-missing");
+        badgeEl.textContent = "HIGH REJECTION RISK";
+        headlineEl.className = "text-[#922b21]";
+        headlineEl.textContent = `Decision: Auto-Rejected at Recruiter / ATS Triage (-${65 - finalPct}% below shortlist threshold)`;
+      }
+
+      const topNeg = effectiveFeatures.filter(f => f.value < 0).sort((a, b) => a.value - b.value)[0];
+      const topPos = effectiveFeatures.filter(f => f.value > 0).sort((a, b) => b.value - a.value)[0];
+      document.getElementById("topNegDriverText").textContent = topNeg ? `${topNeg.label} (${topNeg.value.toFixed(2)})` : "None";
+      document.getElementById("topPosDriverText").textContent = topPos ? `${topPos.label} (+${topPos.value.toFixed(2)})` : "None";
+
+      // 2. Render SHAP Diverging Waterfall Bars
+      const waterfallEl = document.getElementById("shapWaterfallContainer");
+      waterfallEl.innerHTML = "";
+      const maxAbs = Math.max(0.28, ...effectiveFeatures.map(f => Math.abs(f.value)));
+
+      effectiveFeatures.forEach(feat => {
+        const isPos = feat.value >= 0;
+        const barPct = Math.min(96, Math.round((Math.abs(feat.value) / maxAbs) * 92));
+        const isSelected = feat.id === state.selectedFeatureId;
+
+        const row = document.createElement("div");
+        row.className = `shap-row grid grid-cols-12 items-center px-3 py-2.5 ${isSelected ? "selected-row" : ""}`;
+        row.onclick = () => {
+          state.selectedFeatureId = feat.id;
+          renderDashboard();
+        };
+
+        row.innerHTML = `
+          <div class="col-span-5 pr-2">
+            <div class="font-bold text-[12px] text-[#1e293b] leading-snug flex items-center gap-1.5">
+              <span>${feat.label}</span>
+              ${feat.simulated ? '<span class="px-1 py-0.2 text-[9.5px] font-bold rounded bg-[#fef9e7] border border-[#f7dc6f] text-[#9a7d0a]">SIM</span>' : ""}
+            </div>
+            <div class="text-[10.5px] text-[#64748b]">${feat.category}</div>
+          </div>
+
+          <div class="col-span-5 flex items-center h-6">
+            <!-- Left Half (Negative Rejection Drivers) -->
+            <div class="w-1/2 h-full flex justify-end items-center border-r-2 border-[#475569] pr-0.5">
+              ${!isPos ? `<div class="shap-bar-neg h-4 transition-all duration-300" style="width: ${barPct}%;"></div>` : ""}
+            </div>
+            <!-- Right Half (Positive Shortlist Drivers) -->
+            <div class="w-1/2 h-full flex justify-start items-center pl-0.5">
+              ${isPos ? `<div class="shap-bar-pos h-4 transition-all duration-300" style="width: ${barPct}%;"></div>` : ""}
+            </div>
+          </div>
+
+          <div class="col-span-2 text-right font-mono font-bold text-xs ${isPos ? "text-[#27ae60]" : "text-[#c0392b]"}">
+            ${isPos ? "+" : ""}${feat.value.toFixed(2)}
+          </div>
+        `;
+        waterfallEl.appendChild(row);
+      });
+
+      // 3. Update Selected Feature Evidence Inspector
+      const activeFeat = effectiveFeatures.find(f => f.id === state.selectedFeatureId) || effectiveFeatures[0];
+      if (activeFeat) {
+        document.getElementById("inspectorFeatureTitle").textContent = activeFeat.label;
+        const impTag = document.getElementById("inspectorImpactTag");
+        impTag.textContent = `${activeFeat.value >= 0 ? "+" : ""}${activeFeat.value.toFixed(2)}`;
+        impTag.className = `font-mono text-xs font-bold ${activeFeat.value >= 0 ? "text-[#27ae60]" : "text-[#c0392b]"}`;
+
+        const catBadge = document.getElementById("inspectorCategoryBadge");
+        catBadge.textContent = activeFeat.category;
+        catBadge.className = `badge-2010 ${activeFeat.value >= 0 ? "badge-matched" : "badge-missing"}`;
+
+        document.getElementById("inspectorExplanation").textContent = activeFeat.explanation;
+        document.getElementById("inspectorSnippet").textContent = activeFeat.snippet;
+      }
+
+      // 4. Render Counterfactual Simulator Checkboxes
+      const cfContainer = document.getElementById("counterfactualList");
+      cfContainer.innerHTML = "";
+      if (state.counterfactuals.length === 0) {
+        cfContainer.innerHTML = `<div class="text-xs text-[#27ae60] font-semibold bg-[#eafaf1] border border-[#a9dfbf] rounded p-2.5">All primary resume &amp; availability signals are already optimized!</div>`;
+      } else {
+        state.counterfactuals.forEach(cf => {
+          const checked = state.activeCounterfactualIds.has(cf.id);
+          const item = document.createElement("label");
+          item.className = `flex items-start justify-between gap-2.5 p-2 rounded border cursor-pointer transition-colors ${
+            checked
+              ? "bg-[#eafaf1] border-[#52be80]"
+              : "bg-[#f8fafc] border-[#d5dee7] hover:bg-[#f1f5f9]"
+          }`;
+          item.innerHTML = `
+            <div class="flex items-start gap-2">
+              <input type="checkbox" ${checked ? "checked" : ""} class="mt-0.5 rounded border-[#94a3b8]" />
+              <span class="text-xs font-semibold text-[#1e293b] leading-snug">${cf.title}</span>
+            </div>
+            <span class="font-mono text-[11.5px] font-bold text-[#27ae60] whitespace-nowrap">+${cf.delta.toFixed(2)}</span>
+          `;
+          item.querySelector("input").addEventListener("change", () => toggleCounterfactual(cf.id));
+          cfContainer.appendChild(item);
+        });
+      }
+
+      document.getElementById("counterfactualGainTotal").textContent = `+${simGain.toFixed(2)} (+${Math.max(0, pctDelta)}%)`;
+
+      // 5. Render Resume vs. JD Skill & Semantic Gap Matrix Table
+      const tbody = document.getElementById("gapMatrixBody");
+      tbody.innerHTML = "";
+      state.gapMatrix.forEach(row => {
+        const tr = document.createElement("tr");
+        const badgeClass =
+          row.status === "matched"
+            ? "badge-matched"
+            : row.status === "partial"
+            ? "badge-partial"
+            : "badge-missing";
+        const impactColor = row.impact >= 0 ? "text-[#27ae60]" : "text-[#c0392b]";
+
+        tr.innerHTML = `
+          <td class="font-bold text-[#1e293b]">${row.skill}</td>
+          <td class="text-[#52606d]">${row.category}</td>
+          <td class="font-mono text-[11.5px] text-[#334155]">${row.jdWeight}</td>
+          <td><span class="badge-2010 ${badgeClass}">${row.status}</span></td>
+          <td class="font-mono font-bold ${impactColor}">${row.impact >= 0 ? "+" : ""}${row.impact.toFixed(2)}</td>
+          <td class="text-[#475569]">${row.note}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (state.activeTab === "diff") {
+        renderDiffView();
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // 8. ANNOTATED DIFF VIEW & WEIGHT CALIBRATION HELPERS
+    // ------------------------------------------------------------------------
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function renderDiffView() {
+      let resumeHtml = escapeHtml(document.getElementById("resumeInput").value);
+      let jdHtml = escapeHtml(document.getElementById("jdInput").value);
+
+      state.gapMatrix.forEach(row => {
+        const baseWord = row.skill.split("(")[0].trim();
+        if (baseWord.length < 2) return;
+        const safeRegex = new RegExp(`(${baseWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+        if (row.status === "matched") {
+          resumeHtml = resumeHtml.replace(safeRegex, `<span class="hl-matched">$1</span>`);
+          jdHtml = jdHtml.replace(safeRegex, `<span class="hl-matched">$1</span>`);
+        } else if (row.status === "missing") {
+          jdHtml = jdHtml.replace(safeRegex, `<span class="hl-negative">$1</span>`);
+        }
+      });
+
+      document.getElementById("diffResumeView").innerHTML = resumeHtml || "<span class='text-[#94a3b8]'>No resume text entered.</span>";
+      document.getElementById("diffJdView").innerHTML = jdHtml || "<span class='text-[#94a3b8]'>No job description text entered.</span>";
+    }
+
+    function updateWeightLabels() {
+      document.getElementById("wSkillVal").textContent = parseFloat(document.getElementById("wSkillSlider").value).toFixed(1) + "x";
+      document.getElementById("wNoticeVal").textContent = parseFloat(document.getElementById("wNoticeSlider").value).toFixed(1) + "x";
+      document.getElementById("wMetricsVal").textContent = parseFloat(document.getElementById("wMetricsSlider").value).toFixed(1) + "x";
+      document.getElementById("wDomainVal").textContent = parseFloat(document.getElementById("wDomainSlider").value).toFixed(1) + "x";
+    }
+
+    function resetModelWeights() {
+      document.getElementById("wSkillSlider").value = 1.0;
+      document.getElementById("wNoticeSlider").value = 1.0;
+      document.getElementById("wMetricsSlider").value = 1.0;
+      document.getElementById("wDomainSlider").value = 1.0;
+      updateWeightLabels();
+    }
+
+    function applyWeightsAndReturn() {
+      state.weights.skill = parseFloat(document.getElementById("wSkillSlider").value);
+      state.weights.notice = parseFloat(document.getElementById("wNoticeSlider").value);
+      state.weights.metrics = parseFloat(document.getElementById("wMetricsSlider").value);
+      state.weights.domain = parseFloat(document.getElementById("wDomainSlider").value);
+      computeAndRenderAttribution(false);
+      switchTab("analyzer");
+    }
+  </script>
+</body>
+</html>
